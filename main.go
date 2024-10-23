@@ -7,10 +7,10 @@ import (
 	"log"
 	"os"
 
-	"github.com/andyleap/gencode/schema"
+	"github.com/zeromake/gencode/schema"
 	"github.com/kr/pretty"
 
-	_ "github.com/andyleap/gencode/backends/golang"
+	_ "github.com/zeromake/gencode/backends/golang"
 )
 
 func main() {

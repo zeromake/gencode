@@ -2,8 +2,9 @@ package schema
 
 import (
 	"strconv"
+	"unsafe"
 
-	. "github.com/andyleap/parser"
+	. "github.com/zeromake/gencode/parser"
 )
 
 func MakeGrammar() *Grammar {
@@ -21,23 +22,34 @@ func MakeGrammar() *Grammar {
 		return String(m), nil
 	})
 
-	gIntField := And(Optional(Tag("Var", Lit("v"))), Optional(Tag("Unsigned", Lit("u"))), Lit("int"), Tag("Bits", Or(Lit("8"), Lit("16"), Lit("32"), Lit("64"))))
+	gIntField := And(Optional(Tag("Var", Lit("v"))), Optional(Tag("Unsigned", Lit("u"))), Lit("int"), Optional(Tag("Bits", Or(Lit("8"), Lit("16"), Lit("32"), Lit("64")))))
 	gIntField.Node(func(m Match) (Match, error) {
-		bits, err := strconv.ParseInt(String(GetTag(m, "Bits")), 10, 64)
-		if err != nil {
-			return nil, err
+		bitsTag := GetTag(m, "Bits")
+		var temp int
+		var bits int64 = int64(unsafe.Sizeof(&temp)) * 8
+		var err error
+		var skipBits bool = false
+		if bitsTag != nil {
+			bits, err = strconv.ParseInt(String(bitsTag), 10, 64)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			skipBits = true
 		}
 		signed := GetTag(m, "Unsigned") == nil
 		if GetTag(m, "Var") == nil {
 			return &IntType{
 				Signed: signed,
 				Bits:   int(bits),
+				SkipBits: skipBits,
 			}, nil
 		}
 		return &IntType{
 			Signed: signed,
 			Bits:   int(bits),
 			VarInt: true,
+			SkipBits: skipBits,
 		}, nil
 	})
 

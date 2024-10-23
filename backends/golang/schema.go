@@ -3,7 +3,7 @@ package golang
 import (
 	"fmt"
 
-	"github.com/andyleap/gencode/schema"
+	"github.com/zeromake/gencode/schema"
 )
 
 type Walker struct {
@@ -21,12 +21,6 @@ func (w *Walker) WalkSchema(s *schema.Schema, Package string) (parts *StringBuil
 		"unsafe"
 		"io"
 		"time"
-	)
-	
-	var (
-		_ = unsafe.Sizeof(0)
-		_ = io.ReadFull
-		_ = time.Now()
 	)
 	`, Package))
 	for _, st := range s.Structs {

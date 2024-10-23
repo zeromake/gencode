@@ -1,0 +1,49 @@
+struct LuckScriptIndex {
+	Id    int
+	Stage int
+	Type  int
+	Play  *StagePlay
+	Desks []int
+}
+
+struct StagePlay {
+	Settings StagePlaySettings
+	Cards    []*CardConfig
+}
+
+struct CardConfig {
+	Id        int  
+	X         int
+	Y         int
+	W         int
+	H         int
+	Points    int
+	Suit      int
+	Rotate    int
+	Layer     int
+	Tag       int
+	Deps      []int
+	Collect   []int
+	Count     int
+	Direction int
+	Cover     bool
+}
+
+struct StagePlaySettings {
+	Type    int
+	Count   int
+	Rate    int
+	Collect []*StagePlayCollect
+}
+
+struct StagePlayCollect {
+	Rewards []*Reward
+	Count   int
+}
+
+struct Reward {
+	ID     int
+	Count  int
+	DropId int
+	Factor float64
+}

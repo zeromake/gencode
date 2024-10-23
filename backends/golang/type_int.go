@@ -3,7 +3,7 @@ package golang
 import (
 	"text/template"
 
-	"github.com/andyleap/gencode/schema"
+	"github.com/zeromake/gencode/schema"
 )
 
 var (
@@ -42,7 +42,7 @@ func init() {
 		{{else}}
 		
 		{{if .W.Unsafe}}
-		*(*{{if not .Signed}}u{{end}}int{{.Bits}})(unsafe.Pointer(&buf[{{if $.W.IAdjusted}}i + {{end}}{{$.W.Offset}}])) = {{.Target}}
+		*(*{{if not .Signed}}u{{end}}int{{if not .SkipBits}}{{.Bits}}{{end}})(unsafe.Pointer(&buf[{{if $.W.IAdjusted}}i + {{end}}{{$.W.Offset}}])) = {{.Target}}
 		{{else}}
 		{{range BitRange .Bits}}
 		buf[{{if $.W.IAdjusted}}i + {{end}}{{Bytes .}} + {{$.W.Offset}}] = byte({{$.Target}} >> {{.}})
@@ -63,7 +63,7 @@ func init() {
 		}
 		i++
 		{{if .Signed}}
-		{{.Target}} = int{{.Bits}}(t >> 1)
+		{{.Target}} = int{{if not .SkipBits}}{{.Bits}}{{end}}(t >> 1)
 		if t&1 != 0 {
 			{{.Target}} = ^{{.Target}}
 		}
@@ -74,14 +74,14 @@ func init() {
 		{{else}}
 		
 		{{if .W.Unsafe}}
-		{{.Target}} = *(*{{if not .Signed}}u{{end}}int{{.Bits}})(unsafe.Pointer(&buf[{{if $.W.IAdjusted}}i + {{end}}{{$.W.Offset}}]))
+		{{.Target}} = *(*{{if not .Signed}}u{{end}}int{{if not .SkipBits}}{{.Bits}}{{end}})(unsafe.Pointer(&buf[{{if $.W.IAdjusted}}i + {{end}}{{$.W.Offset}}]))
 		{{else}}
-		{{$.Target}} = 0{{range BitRange .Bits}} | ({{if not $.Signed}}u{{end}}int{{$.Bits}}(buf[{{if $.W.IAdjusted}}i + {{end}}{{Bytes .}} + {{$.W.Offset}}]) << {{.}}){{end}}
+		{{$.Target}} = 0{{range BitRange .Bits}} | ({{if not $.Signed}}u{{end}}int{{if not $.SkipBits}}{{$.Bits}}{{end}}(buf[{{if $.W.IAdjusted}}i + {{end}}{{Bytes .}} + {{$.W.Offset}}]) << {{.}}){{end}}
 		{{end}}
 		
 		{{end}}
 	}`))
-	template.Must(IntTemps.New("field").Parse(`{{if not .Signed}}u{{end}}int{{.Bits}}`))
+	template.Must(IntTemps.New("field").Parse(`{{if not .Signed}}u{{end}}int{{if not .SkipBits}}{{.Bits}}{{end}}`))
 	template.Must(IntTemps.New("size").Parse(`
 	{
 		{{if .VarInt}}

@@ -106,6 +106,7 @@ type IntType struct {
 	Bits   int
 	Signed bool
 	VarInt bool
+	SkipBits bool
 }
 
 type DeferType struct {
